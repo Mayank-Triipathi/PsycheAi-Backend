@@ -1,14 +1,11 @@
 const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
-
-  questionText: String,
-
-  domain: {
+  text: String,
+  category: {
     type: String,
-    enum: ["Financial", "Relationship", "Trauma","Emotional"]
-  }
-
+    enum: ["Trauma", "Relationships", "Financial"],
+  },
 });
 
 module.exports = mongoose.model("Question", questionSchema);

@@ -1,23 +1,25 @@
 const mongoose = require("mongoose");
 
-const hospitalSchema = new mongoose.Schema({
+const hospitalSchema = new mongoose.Schema(
+  {
+    name: String,
+    address: String,
 
-  name: String,
+    location: {
+      lat: Number,
+      lng: Number,
+    },
 
-  email: { type: String, unique: true },
+    verified: { type: Boolean, default: false },
 
-  phone: String,
+    admin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HospitalAdmin",
+    },
+  },
+  { timestamps: true }
+);
 
-  address: String,
-
-  latitude: Number,
-  longitude: Number,
-
-  isVerified: {
-    type: Boolean,
-    default: false
-  }
-
-}, { timestamps: true });
+hospitalSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Hospital", hospitalSchema);

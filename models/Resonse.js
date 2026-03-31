@@ -1,19 +1,14 @@
 const mongoose = require("mongoose");
 
-const responseSchema = new mongoose.Schema({
+const responseSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    question: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
 
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    answer: String,
+    score: Number,
   },
-
-  question: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Question"
-  },
-
-  answer: String
-
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Response", responseSchema);

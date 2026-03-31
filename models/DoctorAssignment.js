@@ -1,25 +1,25 @@
 const mongoose = require("mongoose");
 
-const doctorAssignmentSchema = new mongoose.Schema({
+const assignmentSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    doctor: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
+    hospital: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
 
-  prediction: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "StressPrediction"
+    stressPrediction: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StressPrediction",
+    },
+
+    score: Number,
+
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
+    },
   },
+  { timestamps: true }
+);
 
-  doctor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Doctor"
-  },
-
-  matchScore: Number,
-
-  status: {
-    type: String,
-    enum: ["ASSIGNED", "DECLINED", "REASSIGNED"],
-    default: "ASSIGNED"
-  }
-
-});
-
-module.exports = mongoose.model("DoctorAssignment", doctorAssignmentSchema);
+module.exports = mongoose.model("DoctorAssignment", assignmentSchema);

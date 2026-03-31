@@ -1,24 +1,26 @@
 const mongoose = require("mongoose");
 
-const stressPredictionSchema = new mongoose.Schema({
+const stressSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    traumaStress: Number,
+    relationshipStress: Number,
+    financialStress: Number,
+
+    topIndicators: [String],
+
+    medicationNeed: {
+      type: String,
+      enum: ["LOW", "MEDIUM", "HIGH"],
+    },
+
+    primaryProblem: String, // store result of your logic
   },
+  { timestamps: true }
+);
 
-  chatSession: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ChatSession"
-  },
-
-  financial: Number,
-  relationship: Number,
-  trauma: Number,
-  emotional: Number,
-
-  overallStress: Number
-
-}, { timestamps: true });
-
-module.exports = mongoose.model("StressPrediction", stressPredictionSchema);
+module.exports = mongoose.model("StressPrediction", stressSchema);
