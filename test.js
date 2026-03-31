@@ -5,6 +5,7 @@ const User = require("./models/User");
 const Hospital = require("./models/Hospital");
 const Doctor = require("./models/Doctor");
 const StressPrediction = require("./models/StressPrediction");
+const { matchDoctors } = require("./services/matchingService");
 
 async function run() {
   try {
