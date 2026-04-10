@@ -10,6 +10,7 @@ const stressSchema = new mongoose.Schema(
     traumaStress: Number,
     relationshipStress: Number,
     financialStress: Number,
+    emotionalStress: Number,
 
     topIndicators: [String],
 

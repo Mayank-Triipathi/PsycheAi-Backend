@@ -1,7 +1,9 @@
 const Doctor = require("../models/Doctor");
 
 // 🔹 1. Identify Primary Problem
-function getPrimaryProblem(trauma, relationship, financial) {
+function getPrimaryProblem(trauma, relationship, financial, emotional) {
+
+  // Existing combinations
   if (
     Math.abs(trauma - relationship) <= 5 &&
     trauma > financial &&
@@ -25,6 +27,33 @@ function getPrimaryProblem(trauma, relationship, financial) {
     Math.abs(trauma - financial) <= 5
   ) return "TRAUMA + RELATIONSHIP + FINANCIAL";
 
+  // 🔥 NEW: Emotional combinations
+  if (
+    Math.abs(trauma - emotional) <= 5 &&
+    trauma > relationship &&
+    emotional > relationship
+  ) return "TRAUMA + EMOTIONAL";
+
+  if (
+    Math.abs(relationship - emotional) <= 5 &&
+    relationship > financial &&
+    emotional > financial
+  ) return "RELATIONSHIP + EMOTIONAL";
+
+  if (
+    Math.abs(financial - emotional) <= 5 &&
+    financial > trauma &&
+    emotional > trauma
+  ) return "FINANCIAL + EMOTIONAL";
+
+  // 🔥 NEW: Single Emotional
+  if (
+    emotional > trauma &&
+    emotional > relationship &&
+    emotional > financial
+  ) return "EMOTIONAL";
+
+  // Existing single domain
   if (trauma > relationship && trauma > financial) return "TRAUMA";
   if (relationship > trauma && relationship > financial) return "RELATIONSHIP";
   if (financial > trauma && financial > relationship) return "FINANCIAL";
@@ -40,6 +69,7 @@ function calculateScore(doc, prediction, primaryProblem) {
     traumaStress,
     relationshipStress,
     financialStress,
+    emotionalStress, // 🔥 NEW
     topIndicators,
   } = prediction;
 
@@ -71,6 +101,14 @@ function calculateScore(doc, prediction, primaryProblem) {
     }
   }
 
+  // 🔥 NEW: Emotional scoring
+  if (
+    primaryProblem.includes("EMOTIONAL") &&
+    ["Clinical Psychologist", "Counseling Psychologist"].includes(doc.providerType)
+  ) {
+    score += emotionalStress;
+  }
+
   // 🔹 Bonus
   if (topIndicators.includes("past") && doc.specialization.includes("Trauma")) {
     score += 10;
@@ -92,6 +130,21 @@ function calculateScore(doc, prediction, primaryProblem) {
     score += 10;
   }
 
+  // 🔥 NEW: Emotional indicators
+  if (
+    topIndicators.includes("mental") &&
+    ["Clinical Psychologist", "Counseling Psychologist"].includes(doc.providerType)
+  ) {
+    score += 8;
+  }
+
+  if (
+    topIndicators.includes("tired") &&
+    doc.providerType === "Counseling Psychologist"
+  ) {
+    score += 5;
+  }
+
   return score;
 }
 
@@ -101,7 +154,8 @@ async function matchDoctors(prediction, hospitalId, selectedDay) {
   const primaryProblem = getPrimaryProblem(
     prediction.traumaStress,
     prediction.relationshipStress,
-    prediction.financialStress
+    prediction.financialStress,
+    prediction.emotionalStress // 🔥 NEW
   );
 
   let doctors = await Doctor.find({
@@ -131,7 +185,7 @@ async function matchDoctors(prediction, hospitalId, selectedDay) {
     doctors = await Doctor.find({ hospital: hospitalId, isActive: true });
   }
 
-  // 🔥 2. FILTER BY AVAILABILITY (VERY IMPORTANT)
+  // 🔥 2. FILTER BY AVAILABILITY
   if (selectedDay) {
     doctors = doctors.filter(doc =>
       doc.availability.some(a => a.day === selectedDay)
@@ -173,10 +227,3 @@ async function matchDoctors(prediction, hospitalId, selectedDay) {
 }
 
 module.exports = { matchDoctors };
-
-
-// Clinical Psychologist
-// Counseling Psychologist
-// Psychiatrist
-// LMFT
-// Financial Counselor

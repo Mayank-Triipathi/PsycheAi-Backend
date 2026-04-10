@@ -4,7 +4,7 @@ const questionSchema = new mongoose.Schema({
   text: String,
   category: {
     type: String,
-    enum: ["Trauma", "Relationships", "Financial"],
+   enum: ["Trauma", "Relationships", "Financial", "Emotional"],
   },
 });
 

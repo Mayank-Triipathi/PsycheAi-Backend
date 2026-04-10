@@ -30,7 +30,13 @@ const bookAppointment = async (req, res) => {
     }
 
     // 🔹 Create appointment
- 
+ const appointment = await Appointment.create({
+  user: userId,
+  doctor: doctorId,
+  hospital: hospitalId,
+  date,
+  slot
+});
 
     res.json({
       message:
