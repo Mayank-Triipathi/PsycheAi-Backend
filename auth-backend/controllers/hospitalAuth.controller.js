@@ -4,23 +4,20 @@ const { success, error } = require("../utils/response");
 
 const register = async (req, res) => {
   try {
-    const { name, email, phone, address, latitude, longitude, password } = req.body;
+    const { name, address, lat, lng } = req.body;
 
-    const exists = await Hospital.findOne({ email });
-    if (exists) return error(res, "Email already registered", 409);
+    const hospital = await Hospital.create({
+      name,
+      address,
+      location: {
+        type: "Point",
+        coordinates: [lng, lat],
+      },
+    });
 
-    const hospital = await Hospital.create({ name, email, phone, address, latitude, longitude, password });
-    const token = generateToken({ id: hospital._id, email: hospital.email }, "hospital");
-
-    return success(
-      res,
-      { hospital, token },
-      "Hospital registered. Awaiting admin verification.",
-      201
-    );
+    res.json(hospital);
   } catch (err) {
-    console.error("[hospital:register]", err);
-    return error(res, "Registration failed");
+    res.status(500).json({ error: err.message });
   }
 };
 
