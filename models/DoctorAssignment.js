@@ -13,11 +13,12 @@ const assignmentSchema = new mongoose.Schema(
 
     score: Number,
 
-    status: {
-      type: String,
-      enum: ["pending", "accepted", "rejected"],
-      default: "pending",
-    },
+   score: Number,
+status: {
+  type: String,
+  enum: ["suggested", "accepted"],
+  default: "suggested"
+},
   },
   { timestamps: true }
 );

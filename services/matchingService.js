@@ -96,30 +96,87 @@ function calculateScore(doc, prediction, primaryProblem) {
 }
 
 // 🔹 3. Main Matching Function
-async function matchDoctors(prediction, hospitalId) {
+async function matchDoctors(prediction, hospitalId, selectedDay) {
+
   const primaryProblem = getPrimaryProblem(
     prediction.traumaStress,
     prediction.relationshipStress,
     prediction.financialStress
   );
 
-  const doctors = await Doctor.find({
+  let doctors = await Doctor.find({
     hospital: hospitalId,
     isActive: true,
   });
 
-  const results = doctors.map((doc) => {
+  // 🔥 1. FILTER BY medicationNeed
+  if (prediction.medicationNeed === "HIGH") {
+    doctors = doctors.filter(doc => doc.providerType === "Psychiatrist");
+  }
+
+  else if (prediction.medicationNeed === "MEDIUM") {
+    doctors = doctors.filter(doc =>
+      ["Clinical Psychologist", "Counseling Psychologist", "Psychiatrist"].includes(doc.providerType)
+    );
+  }
+
+  else if (prediction.medicationNeed === "LOW") {
+    doctors = doctors.filter(doc =>
+      ["Counseling Psychologist", "LMFT", "Financial Counselor"].includes(doc.providerType)
+    );
+  }
+
+  // 🔥 EDGE CASE: no doctors after filtering
+  if (doctors.length === 0) {
+    doctors = await Doctor.find({ hospital: hospitalId, isActive: true });
+  }
+
+  // 🔥 2. FILTER BY AVAILABILITY (VERY IMPORTANT)
+  if (selectedDay) {
+    doctors = doctors.filter(doc =>
+      doc.availability.some(a => a.day === selectedDay)
+    );
+  }
+
+  // 🔥 EDGE CASE: no available doctors
+  if (doctors.length === 0) {
+    return {
+      primaryProblem,
+      bestMatch: null,
+      message: "No doctors available for selected day"
+    };
+  }
+
+  // 🔥 3. SCORING
+  const results = doctors.map(doc => {
     const score = calculateScore(doc, prediction, primaryProblem);
     return { doctor: doc, score };
   });
 
+  // 🔥 4. SORT
   results.sort((a, b) => b.score - a.score);
+
+  // 🔥 EDGE CASE: weak match
+  if (results[0].score < 20) {
+    return {
+      primaryProblem,
+      bestMatch: null,
+      message: "No strong match found"
+    };
+  }
 
   return {
     primaryProblem,
     bestMatch: results[0],
-    allMatches: results,
+    allMatches: results
   };
 }
 
 module.exports = { matchDoctors };
+
+
+// Clinical Psychologist
+// Counseling Psychologist
+// Psychiatrist
+// LMFT
+// Financial Counselor

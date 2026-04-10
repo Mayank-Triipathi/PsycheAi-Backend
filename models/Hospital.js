@@ -16,6 +16,17 @@ const hospitalSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "HospitalAdmin",
     },
+    bookingType: {
+  type: String,
+  enum: ["AUTO", "APPROVAL"],
+  default: "AUTO"
+},
+
+clinicType: {
+  type: String,
+  enum: ["SOLO", "SMALL", "HOSPITAL"],
+  default: "SMALL"
+}
   },
   { timestamps: true }
 );

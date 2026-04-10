@@ -6,6 +6,7 @@ const Hospital = require("./models/Hospital");
 const Doctor = require("./models/Doctor");
 const StressPrediction = require("./models/StressPrediction");
 const { matchDoctors } = require("./services/matchingService");
+const { formatPrediction } = require("./utils/formatPrediction");
 
 async function run() {
   try {
@@ -38,51 +39,88 @@ console.log("Database deleted");
     console.log("Hospital:", hospital._id);
 
     // 🟢 3. Create Doctors
-    const doctors = await Doctor.insertMany([
-      {
-        name: "Dr Trauma Expert",
-        email: `doc1${Date.now()}@mail.com`,
-        hospital: hospital._id,
-        specialization: ["Trauma"],
-        providerType: "Clinical Psychologist",
-        experienceYears: 6,
-        availability: [{ day: "Mon", slots: ["10-12"] }]
-      },
-      {
-        name: "Dr Relationship Expert",
-        email: `doc2${Date.now()}@mail.com`,
-        hospital: hospital._id,
-        specialization: ["Relationships"],
-        providerType: "Counseling Psychologist",
-        experienceYears: 4,
-        availability: [{ day: "Tue", slots: ["2-5"] }]
-      },
-      {
-        name: "Dr All Rounder",
-        email: `doc3${Date.now()}@mail.com`,
-        hospital: hospital._id,
-        specialization: ["Trauma", "Relationships"],
-        providerType: "Clinical Psychologist",
-        experienceYears: 8,
-        availability: [{ day: "Wed", slots: ["11-3"] }]
-      }
-    ]);
+   const doctors = await Doctor.insertMany([
+  {
+    name: "Dr Trauma",
+    email: `doc1${Date.now()}@mail.com`,
+    hospital: hospital._id,
+    specialization: ["Trauma"],
+    providerType: "Clinical Psychologist",
+    availability: [{ day: "Mon", slots: ["10-11"] }]
+  },
+  {
+    name: "Dr Relationship",
+    email: `doc2${Date.now()}@mail.com`,
+    hospital: hospital._id,
+    specialization: ["Relationships"],
+    providerType: "Counseling Psychologist",
+    availability: [{ day: "Mon", slots: ["11-12"] }]
+  },
+  {
+    name: "Dr Finance",
+    email: `doc3${Date.now()}@mail.com`,
+    hospital: hospital._id,
+    specialization: ["Financial"],
+    providerType: "Financial Counselor",
+    availability: [{ day: "Mon", slots: ["12-1"] }]
+  },
+  {
+    name: "Dr All Rounder",
+    email: `doc4${Date.now()}@mail.com`,
+    hospital: hospital._id,
+    specialization: ["Trauma", "Relationships"],
+    providerType: "Clinical Psychologist",
+    availability: [{ day: "Mon", slots: ["2-3"] }]
+  },
+  {
+    name: "Dr Psychiatrist",
+    email: `doc5${Date.now()}@mail.com`,
+    hospital: hospital._id,
+    specialization: ["Trauma"],
+    providerType: "Psychiatrist",
+    availability: [{ day: "Mon", slots: ["3-4"] }]
+  }
+]);
 
     console.log("Doctors inserted");
 
     // 🟢 4. Create Stress Prediction (FIXED)
-    const prediction = await StressPrediction.create({
-      user: user._id,
-      traumaStress: 38,
-      relationshipStress: 36,
-      financialStress: 25,
-      topIndicators: ["past", "partner"],
-      medicationNeed: "MEDIUM"
-    });
+    const aiResponse = {
+  overall_stress: 52.78,
+  external_domains: {
+    Trauma: 38.15,
+    Relationship: 36.73,
+    Financial: 25.12
+  },
+  top_indicators: ["feel", "partner", "mental", "past", "big"]
+};
+
+const formatted = formatPrediction(aiResponse);
+
+const prediction = await StressPrediction.create({
+  user: user._id,
+  traumaStress: formatted.traumaStress,
+  relationshipStress: formatted.relationshipStress,
+  financialStress: formatted.financialStress,
+  topIndicators: formatted.topIndicators,
+  medicationNeed: formatted.medicationNeed
+});
 
     console.log("Prediction:", prediction._id);
 
+    // 🟢 MATCHING LOGIC
+const result = await matchDoctors(prediction, hospital._id);
+
+console.log("\n--- FINAL MATCH ---");
+console.log("Primary Problem:", result.primaryProblem);
+console.log("Best Doctor:", result.bestMatch.doctor.name);
+console.log("Score:", result.bestMatch.score);
+
+
     process.exit();
+
+
+    
   } catch (err) {
     console.error(err);
   }

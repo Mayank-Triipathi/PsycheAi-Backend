@@ -10,6 +10,10 @@ const doctorSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Hospital",
     },
+    isActive: {
+  type: Boolean,
+  default: true
+},
 
     specialization: [
       {
@@ -18,25 +22,29 @@ const doctorSchema = new mongoose.Schema(
       },
     ],
 
-    providerType: {
-      type: String,
-      enum: [
-        "Clinical Psychologist",
-        "Counseling Psychologist",
-        "Psychiatrist",
-        "Financial Counselor",
-        "LMFT",
-      ],
-    },
+   providerType: {
+  type: String,
+  enum: [
+    "Clinical Psychologist",
+    "Counseling Psychologist",
+    "Psychiatrist",
+    "LMFT",
+    "Financial Counselor"
+  ],
+  required: true
+},
 
     experienceYears: Number,
 
     availability: [
-      {
-        day: String,
-        slots: [String],
-      },
-    ],
+  {
+    day: {
+      type: String,
+      enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    slots: [String] // "10:00-11:00"
+  }
+],
 
     isActive: { type: Boolean, default: true },
   },
