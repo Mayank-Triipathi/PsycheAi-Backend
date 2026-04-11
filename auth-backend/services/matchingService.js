@@ -185,21 +185,19 @@ async function matchDoctors(prediction, hospitalId, selectedDay) {
     doctors = await Doctor.find({ hospital: hospitalId, isActive: true });
   }
 
-  // 🔥 2. FILTER BY AVAILABILITY
-  if (selectedDay) {
-    doctors = doctors.filter(doc =>
-      doc.availability.some(a => a.day === selectedDay)
-    );
-  }
+  // 🔥 2. FILTER BY AVAILABILITY (SAFE VERSION)
+if (selectedDay) {
+  const availableDoctors = doctors.filter(doc =>
+    doc.availability?.some(a => a.day === selectedDay)
+  );
 
-  // 🔥 EDGE CASE: no available doctors
-  if (doctors.length === 0) {
-    return {
-      primaryProblem,
-      bestMatch: null,
-      message: "No doctors available for selected day"
-    };
+  // ✅ If some doctors available → use them
+  if (availableDoctors.length > 0) {
+    doctors = availableDoctors;
   }
+  // ❗ else → DO NOT fail, keep original doctors (fallback)
+}
+
 
   // 🔥 3. SCORING
   const results = doctors.map(doc => {

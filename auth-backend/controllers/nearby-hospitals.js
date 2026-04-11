@@ -6,7 +6,7 @@ const nearbyHospitals = async (req, res) => {
     const { lat, lng } = req.query;
 
     const hospitals = await Hospital.find({
-      is_verified: true,
+      verified: true,
       location: {
         $near: {
           $geometry: {

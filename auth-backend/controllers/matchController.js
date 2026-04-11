@@ -16,8 +16,13 @@ const matchDoctor = async (req, res) => {
     const result = await matchDoctors(prediction, hospitalId, day);
 
     if (!result.bestMatch) {
-      return res.status(404).json({ message: result.message });
-    }
+  return res.json({
+    primaryProblem: result.primaryProblem,
+    doctor: null,
+    score: 0,
+    message: result.message || "No strong match"
+  });
+}
 
     res.json({
       primaryProblem: result.primaryProblem,

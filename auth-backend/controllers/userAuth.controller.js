@@ -36,7 +36,7 @@ const login = async (req, res) => {
     const user = await User.findOne({ email }).select("+password");
     if (!user) return error(res, "Invalid email or password", 401);
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = password === user.password;
     if (!isMatch) return error(res, "Invalid email or password", 401);
 
     const token = generateToken({ id: user._id, email: user.email }, "user");
