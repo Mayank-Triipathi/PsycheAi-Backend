@@ -67,4 +67,24 @@ const verifyHospital = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile, verifyHospital };
+const getHospitals = async (req, res) => {
+  try {
+    const { verified } = req.query;
+
+    const filter = {};
+    if (verified !== undefined) {
+      filter.verified = verified === "true";
+    }
+
+    const hospitals = await Hospital.find(filter)
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    return success(res, { hospitals }, "Hospitals fetched");
+  } catch (err) {
+    console.error("[admin:getHospitals]", err);
+    return error(res, "Failed to fetch hospitals");
+  }
+};
+
+module.exports = { register, login, getProfile, verifyHospital, getHospitals };

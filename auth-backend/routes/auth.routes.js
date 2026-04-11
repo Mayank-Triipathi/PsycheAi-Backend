@@ -28,6 +28,12 @@ router.patch(
   adminCtrl.verifyHospital
 );
 
+router.get(
+  "/admin/hospitals",
+  authenticate("admin"),
+  adminCtrl.getHospitals
+);
+
 // ─── Hospital ─────────────────────────────────────────────────────────────────
 router.post("/hospital/register", hospitalCtrl.register);
 router.post("/hospital/login",    hospitalCtrl.login);
@@ -66,5 +72,7 @@ router.put(
   authenticate("doctor"),
   doctorCtrl.changePassword
 );
+
+
 
 module.exports = router;
