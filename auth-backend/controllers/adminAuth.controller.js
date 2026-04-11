@@ -1,4 +1,4 @@
-const Admin    = require("../models/Admin");
+const Admin = require("../models/Admin");
 const Hospital = require("../models/Hospital");
 const { generateToken } = require("../utils/jwt");
 const { success, error } = require("../utils/response");
@@ -12,6 +12,7 @@ const register = async (req, res) => {
 
     const admin = await Admin.create({ name, email, password });
     const token = generateToken({ id: admin._id, email: admin.email }, "admin");
+    admin.password = undefined;
 
     return success(res, { admin, token }, "Admin registered", 201);
   } catch (err) {
@@ -24,16 +25,20 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ email }).select("+password");
+    const admin = await Admin.findOne({ email });
     if (!admin) return error(res, "Invalid email or password", 401);
 
-    const isMatch = await admin.comparePassword(password);
+    const isMatch = admin.password === password;
     if (!isMatch) return error(res, "Invalid email or password", 401);
 
-    const token = generateToken({ id: admin._id, email: admin.email }, "admin");
+    const token = generateToken(
+      { id: admin._id, email: admin.email },
+      "admin"
+    );
 
     admin.password = undefined;
     return success(res, { admin, token }, "Login successful");
+
   } catch (err) {
     console.error("[admin:login]", err);
     return error(res, "Login failed");
@@ -50,10 +55,9 @@ const verifyHospital = async (req, res) => {
     const hospital = await Hospital.findById(req.params.hospital_id);
     if (!hospital) return error(res, "Hospital not found", 404);
     if (hospital.is_verified) return error(res, "Hospital is already verified", 400);
-
-    hospital.is_verified = true;
-    hospital.admin_id    = req.admin._id;
-    hospital.verified_at = new Date();
+    
+    hospital.verified = true;
+    hospital.admin = req.admin._id;
     await hospital.save();
 
     return success(res, { hospital }, "Hospital verified successfully");

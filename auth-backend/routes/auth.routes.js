@@ -4,33 +4,67 @@ const router  = express.Router();
 const userCtrl     = require("../controllers/userAuth.controller");
 const adminCtrl    = require("../controllers/adminAuth.controller");
 const hospitalCtrl = require("../controllers/hospitalAuth.controller");
+const doctorCtrl   = require("../controllers/auth-doctor");
 
 const { authenticate, requireVerified } = require("../middleware/auth");
-const {
-  validate,
-  userRegisterSchema, userLoginSchema,
-  adminRegisterSchema, adminLoginSchema,
-  hospitalRegisterSchema, hospitalLoginSchema,
-  changePasswordSchema,
-} = require("../utils/validators");
 
 // ─── User ─────────────────────────────────────────────────────────────────────
-router.post("/user/register",         validate(userRegisterSchema),  userCtrl.register);
-router.post("/user/login",            validate(userLoginSchema),     userCtrl.login);
-router.get( "/user/me",               authenticate("user"),          userCtrl.getProfile);
-router.put( "/user/change-password",  authenticate("user"), validate(changePasswordSchema), userCtrl.changePassword);
+router.post("/user/register", userCtrl.register);
+router.post("/user/login",    userCtrl.login);
+router.get( "/user/me",       authenticate("user"), userCtrl.getProfile);
+router.put( "/user/change-password",
+  authenticate("user"),
+  userCtrl.changePassword
+);
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
-router.post( "/admin/register",                      validate(adminRegisterSchema), adminCtrl.register);
-router.post( "/admin/login",                         validate(adminLoginSchema),    adminCtrl.login);
-router.get(  "/admin/me",                            authenticate("admin"),         adminCtrl.getProfile);
-router.patch("/admin/verify-hospital/:hospital_id",  authenticate("admin"),         adminCtrl.verifyHospital);
+router.post("/admin/register", adminCtrl.register);
+router.post("/admin/login",    adminCtrl.login);
+router.get( "/admin/me",       authenticate("admin"), adminCtrl.getProfile);
+
+router.patch(
+  "/admin/verify-hospital/:hospital_id",
+  authenticate("admin"),
+  adminCtrl.verifyHospital
+);
 
 // ─── Hospital ─────────────────────────────────────────────────────────────────
-router.post("/hospital/register",        validate(hospitalRegisterSchema), hospitalCtrl.register);
-router.post("/hospital/login",           validate(hospitalLoginSchema),    hospitalCtrl.login);
-router.get( "/hospital/me",              authenticate("hospital"),         hospitalCtrl.getProfile);
-router.get( "/hospital/dashboard",       authenticate("hospital"), requireVerified, hospitalCtrl.getProfile);
-router.put( "/hospital/change-password", authenticate("hospital"), validate(changePasswordSchema), hospitalCtrl.changePassword);
+router.post("/hospital/register", hospitalCtrl.register);
+router.post("/hospital/login",    hospitalCtrl.login);
+
+router.get(
+  "/hospital/me",
+  authenticate("hospital"),
+  hospitalCtrl.getProfile
+);
+
+router.get(
+  "/hospital/dashboard",
+  authenticate("hospital"),
+  requireVerified,
+  hospitalCtrl.getProfile
+);
+
+router.put(
+  "/hospital/change-password",
+  authenticate("hospital"),
+  hospitalCtrl.changePassword
+);
+
+// ─── Doctor ───────────────────────────────────────────────────────────────────
+router.post("/doctor/register", doctorCtrl.register);
+router.post("/doctor/login",    doctorCtrl.login);
+
+router.get(
+  "/doctor/me",
+  authenticate("doctor"),
+  doctorCtrl.getProfile
+);
+
+router.put(
+  "/doctor/change-password",
+  authenticate("doctor"),
+  doctorCtrl.changePassword
+);
 
 module.exports = router;

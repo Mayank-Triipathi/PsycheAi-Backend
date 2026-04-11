@@ -4,6 +4,8 @@ const hospitalSchema = new mongoose.Schema(
 {
   name: String,
   address: String,
+  email: { type: String, unique: true },
+  password: { type: String, select: false },
 
   location: {
     type: {

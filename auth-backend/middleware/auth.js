@@ -3,8 +3,10 @@ const { error } = require("../utils/response");
 const User     = require("../models/User");
 const Admin    = require("../models/Admin");
 const Hospital = require("../models/Hospital");
+const Doctor   = require("../models/Doctor");
+const hospital = require("../models/Hospital");
 
-const MODELS = { user: User, admin: Admin, hospital: Hospital };
+const MODELS = { user: User, admin: Admin, hospital: Hospital, doctor: Doctor, hospital: hospital };
 
 const authenticate = (type) => async (req, res, next) => {
   try {

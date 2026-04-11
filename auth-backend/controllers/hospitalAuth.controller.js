@@ -4,10 +4,12 @@ const { success, error } = require("../utils/response");
 
 const register = async (req, res) => {
   try {
-    const { name, address, lat, lng } = req.body;
+    const { name,email,password, address, lat, lng } = req.body;
 
     const hospital = await Hospital.create({
       name,
+      email,
+      password,
       address,
       location: {
         type: "Point",
@@ -25,16 +27,24 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const hospital = await Hospital.findOne({ email }).select("+password");
+    const hospital = await Hospital
+      .findOne({ email })
+      .select("+password");
+
     if (!hospital) return error(res, "Invalid email or password", 401);
 
-    const isMatch = await hospital.comparePassword(password);
+    const isMatch = hospital.password === password;
     if (!isMatch) return error(res, "Invalid email or password", 401);
 
-    const token = generateToken({ id: hospital._id, email: hospital.email }, "hospital");
+    const token = generateToken(
+      { id: hospital._id, email: hospital.email },
+      "hospital"
+    );
 
     hospital.password = undefined;
+
     return success(res, { hospital, token }, "Login successful");
+
   } catch (err) {
     console.error("[hospital:login]", err);
     return error(res, "Login failed");

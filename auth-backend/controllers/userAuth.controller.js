@@ -9,7 +9,16 @@ const register = async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return error(res, "Email already registered", 409);
 
-    const user = await User.create({ name, email, phone, address, latitude, longitude, password });
+    const user = await User.create({
+      name,
+      email,
+      phone,
+      password,
+      location: {
+        lat: latitude,
+        lng: longitude
+      }
+    });
     const token = generateToken({ id: user._id, email: user.email }, "user");
 
     return success(res, { user, token }, "Registration successful", 201);

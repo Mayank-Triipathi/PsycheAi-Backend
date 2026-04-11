@@ -1,19 +1,21 @@
 const mongoose = require("mongoose");
 
-const chatSessionSchema = new mongoose.Schema({
+const chatSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
 
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    messages: [
+      {
+        sender: { type: String, enum: ["user", "ai"] },
+        text: String,
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
   },
+  { timestamps: true }
+);
 
-  hospital: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Hospital"
-  },
-
-  consentToShare: Boolean
-
-}, { timestamps: true });
-
-module.exports = mongoose.model("ChatSession", chatSessionSchema);
+module.exports = mongoose.model("ChatSession", chatSchema);

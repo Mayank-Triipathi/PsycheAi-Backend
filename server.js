@@ -2,6 +2,7 @@ require("dotenv").config();
 const express   = require("express");
 const connectDB = require("./auth-backend/config/db");
 const router     = require("./auth-backend/routes/auth.routes");
+const apiRoutes   = require("./auth-backend/routes/apiRoutes");
 const app = express();
 
 // ─── Connect DB ───────────────────────────────────────────────────────────────
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use("/auth", router);
+app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => res.json({ status: "ok", message: "Auth API running" }));
 

@@ -5,17 +5,27 @@ const { z } = require("zod");
  * On failure returns 422 with a list of field errors.
  */
 const validate = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(422).json({
-      success: false,
-      message: "Validation failed",
-      details: result.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`),
-    });
+  try {
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      return res.status(400).json({
+        message: "Validation error",
+        errors: result.error.errors.map(e => ({
+          field: e.path.join("."),
+          message: e.message
+        }))
+      });
+    }
+
+    req.body = result.data;
+    next();
+  } catch (err) {
+    next(err);
   }
-  req.body = result.data; // use the parsed + coerced data going forward
-  next();
 };
+
+module.exports = { validate };
 
 // ─── User ─────────────────────────────────────────────────────────────────────
 const userRegisterSchema = z.object({
