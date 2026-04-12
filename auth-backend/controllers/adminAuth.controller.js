@@ -86,5 +86,18 @@ const getHospitals = async (req, res) => {
     return error(res, "Failed to fetch hospitals");
   }
 };
+const getHospitalDetails = async (req, res) => {
+  try {
+    const hospital = await Hospital.findById(req.params.hospital_id);
 
-module.exports = { register, login, getProfile, verifyHospital, getHospitals };
+    if (!hospital) {
+      return error(res, "Hospital not found", 404);
+    }
+
+    return success(res, { hospital }, "Hospital details fetched");
+  } catch (err) {
+    console.error(err);
+    return error(res, "Failed to fetch hospital");
+  }
+};
+module.exports = { register, login, getProfile, verifyHospital, getHospitals, getHospitalDetails  };

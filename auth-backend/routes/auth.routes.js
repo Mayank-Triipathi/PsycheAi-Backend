@@ -22,6 +22,7 @@ router.post("/admin/register", adminCtrl.register);
 router.post("/admin/login",    adminCtrl.login);
 router.get( "/admin/me",       authenticate("admin"), adminCtrl.getProfile);
 
+
 router.patch(
   "/admin/verify-hospital/:hospital_id",
   authenticate("admin"),
@@ -32,6 +33,12 @@ router.get(
   "/admin/hospitals",
   authenticate("admin"),
   adminCtrl.getHospitals
+);
+
+router.get(
+  "/admin/hospital/:hospital_id",
+  authenticate("admin"),
+  adminCtrl.getHospitalDetails
 );
 
 // ─── Hospital ─────────────────────────────────────────────────────────────────
