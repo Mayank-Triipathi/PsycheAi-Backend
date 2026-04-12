@@ -9,11 +9,13 @@ const { getHospitalAppointments, getDoctorAppointments, getUserAppointments } = 
 const { matchDoctor } = require("../controllers/matchController");
 const { getSlots } = require("../controllers/slotController");
 const { bookAppointment } = require("../controllers/appointmentController");
+const { chatAssessment } = require("../controllers/chat-assessment");
 
 router.post("/match-doctor", matchDoctor);
 router.post("/get-slots", getSlots);
 router.post("/book-appointment", bookAppointment);
 router.get("/nearby-hospitals", require("../controllers/nearby-hospitals").nearbyHospitals);
+router.post("/chat-assessment", authenticate("user"), chatAssessment);
 
 // router.post("/hospital/add-doctor", authenticate("hospital"), requireVerified, addDoctor);
 // router.post("/hospital/add-doctors", authenticate("hospital"), requireVerified, addDoctors);
