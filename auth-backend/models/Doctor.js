@@ -14,21 +14,14 @@ const doctorSchema = new mongoose.Schema(
   specialization: [
     {
       type: String,
-      enum: ["Trauma", "Relationships", "Financial"],
+      enum: ["Trauma", "Relationships", "Financial", "Emotional"],
     },
   ],
 
   providerType: {
-    type: String,
-    enum: [
-      "Clinical Psychologist",
-      "Counseling Psychologist",
-      "Psychiatrist",
-      "LMFT",
-      "Financial Counselor"
-    ],
-    required: true
-  },
+  type: String,
+  default: "Psychiatrist"
+},
 
   experienceYears: Number,
 
@@ -36,7 +29,7 @@ const doctorSchema = new mongoose.Schema(
     {
       day: {
         type: String,
-        enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
       },
       slots: [String]
     }

@@ -16,22 +16,24 @@ const matchDoctor = async (req, res) => {
     const result = await matchDoctors(prediction, hospitalId, day);
 
     if (!result.bestMatch) {
-  return res.json({
-    primaryProblem: result.primaryProblem,
-    doctor: null,
-    score: 0,
-    message: result.message || "No strong match"
-  });
-}
-
+      return res.json({
+        primaryProblem: result.primaryProblem,
+        doctor: null,
+        score: 0,
+        message: result.message || "No strong match"
+      });
+    }
+    console.log("Best match:", result.bestMatch);  // 👈 ADD THIS
     res.json({
       primaryProblem: result.primaryProblem,
       doctor: result.bestMatch.doctor,
-      score: result.bestMatch.score
+      score: result.bestMatch.score,
+      matchPercentage: result.bestMatch.score ?? 0  // ← add this
     });
 
   } catch (err) {
-  console.error(err);   // 👈 ADD THIS
-  res.status(500).json({ message: "Server error", error: err.message });
-}};
+    console.error(err);   // 👈 ADD THIS
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 module.exports = { matchDoctor };
